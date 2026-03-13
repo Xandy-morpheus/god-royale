@@ -6,21 +6,34 @@ export default function Admin() {
   const { players, loading, updateChips } = useLeaderboard();
   const [search, setSearch] = React.useState('');
 
+  const isSubsequence = (search: string, target: string) => {
+    if (!search) return true;
+    let i = 0;
+    let j = 0;
+    while (i < search.length && j < target.length) {
+      if (search[i].toLowerCase() === target[j].toLowerCase()) {
+        i++;
+      }
+      j++;
+    }
+    return i === search.length;
+  };
+
   const filteredPlayers = players.filter(p => 
-    p.abbreviation.toLowerCase().includes(search.toLowerCase()) || 
+    isSubsequence(search, p.abbreviation) || 
     p.fullName.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) return <div className="flex h-screen items-center justify-center text-white">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-[#0B1320] bg-stripes text-white p-4 sm:p-8 font-sans selection:bg-[#F4D03F] selection:text-black">
+    <div className="min-h-screen bg-[#16325B] bg-stripes text-white p-4 sm:p-8 font-sans selection:bg-[#F4D03F] selection:text-black">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div className="flex flex-col animate-in slide-in-from-left-4 duration-500">
           <h1 className="text-3xl md:text-5xl font-serif font-bold text-gold-gradient tracking-widest leading-tight">
-            CHIP COMMAND
+            COMANDO DE FICHAS
           </h1>
           <div className="h-[2px] w-32 bg-gradient-to-r from-[#F4D03F] to-transparent mt-2"></div>
         </div>
@@ -28,7 +41,7 @@ export default function Admin() {
         <div className="relative w-full md:w-80 animate-in slide-in-from-right-4 duration-500">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
           <input 
-            placeholder="SEARCH PLAYER..." 
+            placeholder="PESQUISAR JOGADOR..." 
             className="w-full bg-[#0A0F1A] border border-white/10 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#F4D03F]/50 focus:ring-1 focus:ring-[#F4D03F]/50 rounded-lg py-3 pl-12 pr-4 text-xs font-bold tracking-widest uppercase transition-all"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -61,7 +74,7 @@ export default function Admin() {
               
               <div className="flex flex-col items-end">
                 <span className="text-[#F4D03F] text-[9px] font-bold tracking-[0.2em] uppercase mb-1">
-                  Balance
+                  Saldo
                 </span>
                 <span className="text-2xl md:text-3xl font-serif font-bold text-white tabular-nums leading-none">
                   {player.chips}
@@ -75,13 +88,13 @@ export default function Admin() {
                 onClick={() => updateChips(player.id, -1)}
                 className="flex-1 bg-[#1A2234] hover:bg-[#252F44] border border-white/10 text-white text-[10px] md:text-xs font-bold tracking-widest uppercase py-3 rounded-md transition-colors active:scale-95"
               >
-                Subtract
+                Subtrair
               </button>
               <button 
                 onClick={() => updateChips(player.id, 1)}
                 className="flex-1 bg-[#F4D03F] hover:bg-[#FFE57F] text-black text-[10px] md:text-xs font-bold tracking-widest uppercase py-3 rounded-md shadow-[0_0_15px_rgba(244,208,63,0.2)] hover:shadow-[0_0_20px_rgba(244,208,63,0.4)] transition-all active:scale-95"
               >
-                Add Chips
+                Adicionar
               </button>
             </div>
 
@@ -107,7 +120,7 @@ export default function Admin() {
         {filteredPlayers.length === 0 && (
           <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-500">
             <Search className="w-12 h-12 mb-4 opacity-20" />
-            <p className="text-sm font-bold tracking-widest uppercase">No players found</p>
+            <p className="text-sm font-bold tracking-widest uppercase">Nenhum jogador encontrado</p>
           </div>
         )}
       </div>
