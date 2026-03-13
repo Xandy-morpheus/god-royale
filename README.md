@@ -1,73 +1,79 @@
-# React + TypeScript + Vite
+# Leaderboard Web App 🏆
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Web app para gerenciar o placar (leaderboard) de um torneio em tempo real.
 
-Currently, two official plugins are available:
+## 🚀 Technologies Used
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project was built with a focus on performance and an excellent developer experience:
 
-## React Compiler
+- **[React 19](https://react.dev/)** - JavaScript library for building user interfaces.
+- **[TypeScript](https://www.typescriptlang.org/)** - A superset of JavaScript that adds static typing.
+- **[Vite](https://vitejs.dev/)** - Fast and efficient build tool.
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework for rapid UI development.
+- **[Firebase](https://firebase.google.com/)** - Real-time data synchronization and persistence.
+- **[Shadcn UI](https://ui.shadcn.com/)** & **[Lucide React](https://lucide.dev/)** - Accessible UI components and modern icons.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+- **Leaderboard View**: Displays the list of participants and their updated chip/point counts.
+- **Admin Panel**: Dedicated area (usually under a specific route) for inserting and controlling points.
+  - Allows adding or removing chips quickly through buttons like `+1`, `+2`, `-1`, and `-2`.
+- **Responsive and Modern Design**: User-friendly interface on both desktop computers and mobile devices.
+- **Real-Time Updates**: Thanks to Firebase, point additions made in the admin panel reflect immediately on the main viewing screen.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📦 How to Install and Run
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Follow the steps below to run the project locally on your machine.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Ensure you have [Node.js](https://nodejs.org/) installed on your system.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Steps
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Access the project folder:**
+   ```bash
+   cd leaderboard
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables:**
+   Make sure to review/fill out the `.env` file in the root of the project with the appropriate Firebase API keys:
+   ```env
+   VITE_FIREBASE_API_KEY=...
+   VITE_FIREBASE_AUTH_DOMAIN=...
+   VITE_FIREBASE_PROJECT_ID=...
+   VITE_FIREBASE_STORAGE_BUCKET=...
+   VITE_FIREBASE_MESSAGING_SENDER_ID=...
+   VITE_FIREBASE_APP_ID=...
+   ```
+
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Access the application:**
+   Open your browser and navigate to the URL indicated in the terminal (often `http://localhost:5173`).
+
+## 🛠️ Available Scripts
+
+Inside the project directory, you can run the following commands:
+
+- `npm run dev`: Starts the development server with hot-reload.
+- `npm run build`: Transpiles TypeScript and creates the optimized production build in the `dist` folder.
+- `npm run lint`: Analyzes the code with ESLint to ensure quality.
+- `npm run preview`: Starts a local server to preview the production build before deployment.
+
+## 📄 Main Structure
+
+Most of the logic and interface are located in the `src/` folder:
+
+- `src/components/` - Base components (e.g., buttons, inputs configured with shadcn).
+- `src/pages/` - Pages and routing views (e.g., `Leaderboard.tsx`).
+- `src/hooks/` - Custom React hooks (like `useLeaderboard.ts`).
+- `src/index.css` - Global styles and basic Tailwind rules.
