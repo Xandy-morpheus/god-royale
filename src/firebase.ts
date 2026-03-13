@@ -1,0 +1,16 @@
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
+export const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_PROJECT_ID;
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "mock-key",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "mock-domain",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-project",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "mock-bucket",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "mock-sender",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "mock-appid"
+};
+
+export const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);

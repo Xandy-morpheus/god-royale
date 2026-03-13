@@ -80,9 +80,26 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#0B1320] text-foreground;
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .bg-stripes {
+    background-color: #0b1320;
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(255, 255, 255, 0.02) 60px,
+      rgba(255, 255, 255, 0.02) 120px
+    );
+  }
+
+  .text-gold-gradient {
+    @apply text-transparent bg-clip-text bg-gradient-to-b from-[#FFF2A8] via-[#F4D03F] to-[#CD8500];
   }
 }
