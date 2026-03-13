@@ -82,36 +82,39 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Buttons Row 1 */}
-            <div className="flex gap-3">
-              <button 
-                onClick={() => updateChips(player.id, -1)}
-                className="flex-1 bg-[#1A2234] hover:bg-[#252F44] border border-white/10 text-white text-[10px] md:text-xs font-bold tracking-widest uppercase py-3 rounded-md transition-colors active:scale-95"
-              >
-                Subtrair
-              </button>
-              <button 
-                onClick={() => updateChips(player.id, 1)}
-                className="flex-1 bg-[#F4D03F] hover:bg-[#FFE57F] text-black text-[10px] md:text-xs font-bold tracking-widest uppercase py-3 rounded-md shadow-[0_0_15px_rgba(244,208,63,0.2)] hover:shadow-[0_0_20px_rgba(244,208,63,0.4)] transition-all active:scale-95"
-              >
-                Adicionar
-              </button>
-            </div>
+            {/* Buttons Container */}
+            <div className="flex flex-col gap-3">
+              {/* Buttons Row 1 */}
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => updateChips(player.id, -1)}
+                  className="flex-1 bg-[#1A2234] hover:bg-[#252F44] border border-white/10 text-white text-sm md:text-base font-bold tracking-widest uppercase py-3 rounded-md transition-colors active:scale-95"
+                >
+                  -1
+                </button>
+                <button 
+                  onClick={() => updateChips(player.id, 1)}
+                  className="flex-1 bg-[#F4D03F] hover:bg-[#FFE57F] text-black text-sm md:text-base font-bold tracking-widest uppercase py-3 rounded-md shadow-[0_0_15px_rgba(244,208,63,0.2)] hover:shadow-[0_0_20px_rgba(244,208,63,0.4)] transition-all active:scale-95"
+                >
+                  +1
+                </button>
+              </div>
 
-            {/* Buttons Row 2 */}
-            <div className="flex gap-3">
-              <button 
-                onClick={() => updateChips(player.id, 2)}
-                className="flex-1 bg-transparent hover:bg-[#F4D03F]/10 border border-[#F4D03F]/30 text-[#F4D03F] text-[10px] md:text-xs font-bold tracking-widest uppercase py-2.5 rounded-md transition-colors active:scale-95"
-              >
-                +2
-              </button>
-              <button 
-                onClick={() => updateChips(player.id, -1)}
-                className="flex-1 bg-transparent hover:bg-white/5 border border-white/10 text-white text-[10px] md:text-xs font-bold tracking-widest uppercase py-2.5 rounded-md transition-colors active:scale-95"
-              >
-                -1
-              </button>
+              {/* Buttons Row 2 */}
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => updateChips(player.id, -2)}
+                  className="flex-1 bg-transparent hover:bg-white/5 border border-white/10 text-white text-sm md:text-base font-bold tracking-widest uppercase py-2.5 rounded-md transition-colors active:scale-95"
+                >
+                  -2
+                </button>
+                <button 
+                  onClick={() => updateChips(player.id, 2)}
+                  className="flex-1 bg-transparent hover:bg-[#F4D03F]/10 border border-[#F4D03F]/30 text-[#F4D03F] text-sm md:text-base font-bold tracking-widest uppercase py-2.5 rounded-md transition-colors active:scale-95"
+                >
+                  +2
+                </button>
+              </div>
             </div>
             
           </div>
