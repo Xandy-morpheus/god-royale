@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../firebase';
+// Importing the file as a raw string
+import csvRaw from './Competidores - Sheet1.csv?raw';
 
 export interface Player {
   id: string;
@@ -10,48 +12,59 @@ export interface Player {
   chips: number;
 }
 
-const mockInitialData: Player[] = [
-  { id: "1", fullName: "Alexandre Santos", abbreviation: "AS", tableName: "Alexandre S.", chips: 15 },
-  { id: "2", fullName: "Pedro Figueira", abbreviation: "PF", tableName: "Pedro F.", chips: 14 },
-  { id: "3", fullName: "Beatriz Freire", abbreviation: "BF", tableName: "Beatriz F.", chips: 13 },
-  { id: "4", fullName: "Daniel Santos", abbreviation: "DS", tableName: "Daniel S.", chips: 12 },
-  { id: "5", fullName: "João Miranda", abbreviation: "JM", tableName: "João M.", chips: 11 },
-  { id: "6", fullName: "Mariana Coelho", abbreviation: "MC", tableName: "Mariana C.", chips: 10 },
-  { id: "7", fullName: "Daniela Lopes", abbreviation: "DL", tableName: "Daniela L.", chips: 10 },
-  { id: "8", fullName: "Maria Belo", abbreviation: "MB", tableName: "Maria B.", chips: 10 },
-  { id: "9", fullName: "Marta Ferreira", abbreviation: "MF", tableName: "Marta F.", chips: 10 },
-  { id: "10", fullName: "André Camões", abbreviation: "AC", tableName: "André C.", chips: 10 },
-];
+/**
+ * Helper to transform CSV string to Player array
+ * Handles both \n and \r\n line endings
+ */
+const parseCSV = (csv: string): Player[] => {
+  if (!csv) return [];
 
+  // Split by newline, then filter out any empty lines
+  const lines = csv.trim().split(/\r?\n/).filter(line => line.trim() !== "");
+  const dataLines = lines.slice(1); // Skip header row
+
+  return dataLines.map((line, index) => {
+    const [fullName, abbreviation, tableName, chips] = line.split(',');
+    
+    return {
+      // Using index + 1 as ID. Ensure this matches your Firestore document IDs!
+      id: (index + 1).toString(), 
+      fullName: fullName?.trim() || "",
+      abbreviation: abbreviation?.trim() || "",
+      tableName: tableName?.trim() || "",
+      chips: parseInt(chips?.trim(), 10) || 0
+    };
+  });
+};
+
+// Now mockInitialData is derived directly from your actual .csv file
+const mockInitialData: Player[] = parseCSV(csvRaw);
 
 export function useLeaderboard() {
   const [players, setPlayers] = useState<Player[]>(mockInitialData);
-  const [loading, setLoading] = useState(!isFirebaseConfigured ? false : true);
+  const [loading, setLoading] = useState(isFirebaseConfigured);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
-      console.log("Firebase not configured. Using local mock data.");
+      console.log("Firebase not configured. Using data from CSV file.");
       return;
     }
 
     const unsubscribe = onSnapshot(collection(db, 'players'), (snapshot) => {
       const dbPlayers: Player[] = [];
       snapshot.forEach((doc) => {
-        dbPlayers.push({ id: doc.id, ...doc.data() } as Player);
+        dbPlayers.push({ ...doc.data(), id: doc.id } as Player);
       });
 
-      // Add any missing players from mockInitialData to Firestore
-      const missingPlayers = mockInitialData.filter(
-        mockPlayer => !dbPlayers.some(dbPlayer => dbPlayer.id === mockPlayer.id)
-      );
+      // Sync Firestore: If a player from the CSV doesn't exist in DB, create them
+      mockInitialData.forEach(async (mockPlayer) => {
+        if (!dbPlayers.some(dbP => dbP.id === mockPlayer.id)) {
+          await setDoc(doc(db, 'players', mockPlayer.id), mockPlayer);
+        }
+      });
 
-      if (missingPlayers.length > 0) {
-        missingPlayers.forEach(async (p) => {
-          await setDoc(doc(db, 'players', p.id), p);
-        });
-      }
-
-      setPlayers(dbPlayers);
+      // Update state with DB data, falling back to CSV if DB is empty
+      setPlayers(dbPlayers.length > 0 ? dbPlayers : mockInitialData);
       setLoading(false);
     });
 
@@ -59,24 +72,22 @@ export function useLeaderboard() {
   }, []);
 
   const updateChips = async (playerId: string, difference: number) => {
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
+
+    const newScore = Math.max(0, player.chips + difference);
+
     if (!isFirebaseConfigured) {
       setPlayers((prev) =>
-        prev.map(p => p.id === playerId ? { ...p, chips: Math.max(0, p.chips + difference) } : p)
+        prev.map(p => p.id === playerId ? { ...p, chips: newScore } : p)
       );
       return;
     }
 
-    const player = players.find(p => p.id === playerId);
-    if (!player) return;
-
-    const newScore = Math.max(0, player.chips + difference); // previne fichas negativas se for a regra
-
     try {
-      await updateDoc(doc(db, 'players', playerId), {
-        chips: newScore
-      });
+      await updateDoc(doc(db, 'players', playerId), { chips: newScore });
     } catch (error) {
-      console.error("Error updating player:", error);
+      console.error("Error updating player in Firestore:", error);
     }
   };
 
