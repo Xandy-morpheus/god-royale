@@ -14,12 +14,10 @@ export interface Player {
 
 /**
  * Helper to transform CSV string to Player array
- * Handles both \n and \r\n line endings
  */
 const parseCSV = (csv: string): Player[] => {
   if (!csv) return [];
 
-  // Split by newline, then filter out any empty lines
   const lines = csv.trim().split(/\r?\n/).filter(line => line.trim() !== "");
   const dataLines = lines.slice(1); // Skip header row
 
@@ -27,7 +25,6 @@ const parseCSV = (csv: string): Player[] => {
     const [fullName, abbreviation, tableName, chips] = line.split(',');
     
     return {
-      // Using index + 1 as ID. Ensure this matches your Firestore document IDs!
       id: (index + 1).toString(), 
       fullName: fullName?.trim() || "",
       abbreviation: abbreviation?.trim() || "",
@@ -37,16 +34,37 @@ const parseCSV = (csv: string): Player[] => {
   });
 };
 
-// Now mockInitialData is derived directly from your actual .csv file
 const mockInitialData: Player[] = parseCSV(csvRaw);
 
 export function useLeaderboard() {
   const [players, setPlayers] = useState<Player[]>(mockInitialData);
   const [loading, setLoading] = useState(isFirebaseConfigured);
 
+  // --- EFFECT 1: SYNC CSV TO FIRESTORE ---
+  // This runs once on load and forces Firestore to match the CSV exactly
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+
+    const syncCsvToFirestore = async () => {
+      try {
+        const promises = mockInitialData.map((player) => 
+          setDoc(doc(db, 'players', player.id), player)
+        );
+        await Promise.all(promises);
+        console.log("Firestore successfully synced with CSV data.");
+      } catch (error) {
+        console.error("Error syncing CSV to Firestore:", error);
+      }
+    };
+
+    syncCsvToFirestore();
+  }, []); // Only runs once
+
+  // --- EFFECT 2: REAL-TIME LISTENER ---
+  // This listens for any changes (like manual chip updates) and updates the UI
   useEffect(() => {
     if (!isFirebaseConfigured) {
-      console.log("Firebase not configured. Using data from CSV file.");
+      console.log("Firebase not configured. Using local CSV data.");
       return;
     }
 
@@ -56,15 +74,10 @@ export function useLeaderboard() {
         dbPlayers.push({ ...doc.data(), id: doc.id } as Player);
       });
 
-      // Sync Firestore: If a player from the CSV doesn't exist in DB, create them
-      mockInitialData.forEach(async (mockPlayer) => {
-        if (!dbPlayers.some(dbP => dbP.id === mockPlayer.id)) {
-          await setDoc(doc(db, 'players', mockPlayer.id), mockPlayer);
-        }
-      });
-
-      // Update state with DB data, falling back to CSV if DB is empty
-      setPlayers(dbPlayers.length > 0 ? dbPlayers : mockInitialData);
+      // Sort players by chips (Descending) so the leader is at the top
+      const sortedPlayers = dbPlayers.sort((a, b) => b.chips - a.chips);
+      
+      setPlayers(sortedPlayers.length > 0 ? sortedPlayers : mockInitialData);
       setLoading(false);
     });
 
@@ -77,9 +90,11 @@ export function useLeaderboard() {
 
     const newScore = Math.max(0, player.chips + difference);
 
+    // Local state fallback if Firebase isn't working
     if (!isFirebaseConfigured) {
       setPlayers((prev) =>
         prev.map(p => p.id === playerId ? { ...p, chips: newScore } : p)
+            .sort((a, b) => b.chips - a.chips)
       );
       return;
     }
